@@ -16,7 +16,7 @@ bl_info = {
 }
 
 
-class ICYP_OT_hair_generator(bpy.types.Operator):
+class ICYP_OT_curve_array_setup(bpy.types.Operator):
     bl_idname = "object.icyp_curve_setup"
     bl_label = "setup curve to array and bevel taper"
     bl_description = "setup curve to array bevel taper"
@@ -65,11 +65,11 @@ class ICYP_OT_hair_generator(bpy.types.Operator):
     
 # アドオン有効化時の処理
 classes = [
-    ICYP_OT_hair_generator
+    ICYP_OT_curve_array_setup
     ]
     
 def add_button(self, context):
-    self.layout.operator(ICYP_OT_hair_generator.bl_idname)
+    self.layout.operator(ICYP_OT_curve_array_setup.bl_idname)
     
 def register():
     for cls in classes:
