@@ -24,7 +24,7 @@ class ICYP_OT_curve_array_setup(bpy.types.Operator):
     
     
     def curve_import(self):
-        filedir = os.path.join(os.path.dirname(os.path.dirname(__file__)),"hair_array","resources","curves.blend")
+        filedir = os.path.join(os.path.dirname(__file__),"resources","curves.blend")
         with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
             data_to.curves = data_from.curves
             return data_to.curves    
