@@ -2,7 +2,7 @@ import bpy
 import math
 import os,re
 bl_info = {
-    "name":"HAIR_GEN",
+    "name":"Curve_array_bevel_taper_setup",
     "author": "iCyP",
     "version": (0, 1),
     "blender": (2, 80, 0),
