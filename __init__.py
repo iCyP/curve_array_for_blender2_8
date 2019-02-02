@@ -7,7 +7,7 @@ bl_info = {
     "version": (0, 1),
     "blender": (2, 80, 0),
     "location": "ObjectMode->Right click",
-    "description": "simple setup curve to array_hair",
+    "description": "simple setup curve to array, bevel, taper",
     "warning": "",
     "support": "TESTING",
     "wiki_url": "",
