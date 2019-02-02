@@ -17,9 +17,9 @@ bl_info = {
 
 
 class ICYP_OT_hair_generator(bpy.types.Operator):
-    bl_idname = "object.icyp_hair_gen"
+    bl_idname = "object.icyp_curve_setup"
     bl_label = "setup curve to array and bevel taper"
-    bl_description = "setup curve to hair"
+    bl_description = "setup curve to array bevel taper"
     bl_options = {'REGISTER', 'UNDO'}
     
     
