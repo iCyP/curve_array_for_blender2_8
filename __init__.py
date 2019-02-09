@@ -92,7 +92,8 @@ classes = [
     ]
     
 def add_button(self, context):
-    self.layout.operator(ICYP_OT_curve_array_setup.bl_idname)
+    if context.object.type == "CURVE":
+        self.layout.operator(ICYP_OT_curve_array_setup.bl_idname)
     
 def register():
     for cls in classes:
