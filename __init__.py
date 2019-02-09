@@ -39,6 +39,8 @@ class ICYP_OT_curve_array_setup(bpy.types.Operator):
         colle.objects.link(target_obj)
         origin_empty.location = target_obj.location
         origin_empty.empty_display_size = 0.3
+        origin_empty.show_name = True
+        array_offset_empty.show_name = True
         for coll in target_obj.users_collection:
             if coll is not colle:
                 coll.objects.unlink(target_obj)
@@ -60,12 +62,16 @@ class ICYP_OT_curve_array_setup(bpy.types.Operator):
                 target_obj.data.bevel_object = b
                 b.parent = origin_empty
                 b.location[2] += 0.45
+                b.show_name = True
+                b.data.dimensions = "2D"
             elif re.match("taper",curve.name):
                 t = bpy.data.objects.new("taper",curve)
                 colle.objects.link(t)
                 target_obj.data.taper_object = t
                 t.parent = origin_empty
                 t.location[2] += 0.6
+                t.show_name = True
+                t.data.dimensions = "2D"
         return {'FINISHED'}
     
 # アドオン有効化時の処理
