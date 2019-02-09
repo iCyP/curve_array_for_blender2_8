@@ -22,56 +22,68 @@ class ICYP_OT_curve_array_setup(bpy.types.Operator):
     bl_description = "setup curve to array bevel taper"
     bl_options = {'REGISTER', 'UNDO'}
     
-    
+    add_array : bpy.props.BoolProperty(default = True)
+
     def curve_import(self):
         filedir = os.path.join(os.path.dirname(__file__),"resources","curves.blend")
         with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
             data_to.curves = data_from.curves
             return data_to.curves    
-    def execute(self,context):
+    def execute(self,context):   
         target_obj = context.active_object
-        origin_empty = bpy.data.objects.new("pos",None)
-        array_offset_empty = bpy.data.objects.new("offset",None)
-        colle = bpy.data.collections.new("pro_hair")
-        bpy.context.scene.collection.children.link(colle)
-        colle.objects.link(origin_empty)
-        colle.objects.link(array_offset_empty)
-        colle.objects.link(target_obj)
-        origin_empty.location = target_obj.location
-        origin_empty.empty_display_size = 0.3
-        origin_empty.show_name = True
-        array_offset_empty.show_name = True
-        for coll in target_obj.users_collection:
-            if coll is not colle:
-                coll.objects.unlink(target_obj)
-        origin_empty.empty_display_type = "SPHERE"
-        array_offset_empty.parent = origin_empty
-        array_offset_empty.rotation_euler[2] = math.radians(10)
-        target_obj.parent = origin_empty
-        mod = target_obj.modifiers.new("arr","ARRAY")
-        mod.use_relative_offset = False
-        mod.use_object_offset = True
-        mod.offset_object = array_offset_empty
-        mod.count = 10
-        target_obj.location = (0,0,0)
+        if self.add_array:
+            origin_empty = bpy.data.objects.new("pos",None)
+            array_offset_empty = bpy.data.objects.new("offset",None)
+            colle = bpy.data.collections.new("pro_hair")
+            bpy.context.scene.collection.children.link(colle)
+            colle.objects.link(origin_empty)
+            colle.objects.link(array_offset_empty)
+            colle.objects.link(target_obj)
+            origin_empty.location = target_obj.location
+            origin_empty.empty_display_size = 0.3
+            origin_empty.show_name = True
+            array_offset_empty.show_name = True
+            for coll in target_obj.users_collection:
+                if coll is not colle:
+                    coll.objects.unlink(target_obj)
+            origin_empty.empty_display_type = "SPHERE"
+            array_offset_empty.parent = origin_empty
+            array_offset_empty.rotation_euler[2] = math.radians(10)
+            target_obj.parent = origin_empty
+            mod = target_obj.modifiers.new("arr","ARRAY")
+            mod.use_relative_offset = False
+            mod.use_object_offset = True
+            mod.offset_object = array_offset_empty
+            mod.count = 10
+            target_obj.location = (0,0,0)
+        else:
+            colle = bpy.data.collections.new("curve_set")
+            colle.objects.link(target_obj)
+            bpy.context.scene.collection.children.link(colle)
+            for coll in target_obj.users_collection:
+                if coll is not colle:
+                    coll.objects.unlink(target_obj)
+            
+        def curve_setup(isTaper,curve,difPos,parent_obj):
+            c = bpy.data.objects.new("taper" if isTaper else "bevel",curve)
+            colle.objects.link(c)
+            c.parent = parent_obj
+            if isTaper:
+                target_obj.data.taper_object = c
+            else: #isBevel
+                target_obj.data.bevel_object = c
+            c.location[2] += difPos
+            c.show_name = True
+            c.data.dimensions = "2D"            
+
         curves = self.curve_import()
         for curve in curves:
+            parent_object = origin_empty if self.add_array else target_obj 
             if re.match("bevel",curve.name):
-                b = bpy.data.objects.new("bevel",curve)
-                colle.objects.link(b)
-                target_obj.data.bevel_object = b
-                b.parent = origin_empty
-                b.location[2] += 0.45
-                b.show_name = True
-                b.data.dimensions = "2D"
+                curve_setup(False,curve,0.45,parent_object)
             elif re.match("taper",curve.name):
+                curve_setup(True,curve,0.6,parent_object)
                 t = bpy.data.objects.new("taper",curve)
-                colle.objects.link(t)
-                target_obj.data.taper_object = t
-                t.parent = origin_empty
-                t.location[2] += 0.6
-                t.show_name = True
-                t.data.dimensions = "2D"
         return {'FINISHED'}
     
 # アドオン有効化時の処理
