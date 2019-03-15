@@ -92,17 +92,17 @@ classes = [
     ]
     
 def add_button(self, context):
-    if context.object.type == "CURVE":
+    if context.active_object.type == "CURVE":
         self.layout.operator(ICYP_OT_curve_array_setup.bl_idname)
     
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    bpy.types.VIEW3D_MT_object_specials.append(add_button)
+    bpy.types.VIEW3D_MT_object_context_menu.append(add_button)
     
 # アドオン無効化時の処理
 def unregister():
-    bpy.types.VIEW3D_MT_object_specials.remove(add_button)
+    bpy.types.VIEW3D_MT_object_context_menu.remove(add_button)
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
