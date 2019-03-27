@@ -15,6 +15,17 @@ bl_info = {
     "category": "Object"
 }
 
+def get_enum(data_kind):
+    enum_obj = []
+    filedir = os.path.join(os.path.dirname(__file__),"resources",f"{data_kind}s.blend")
+    with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
+        enum_obj =  [ (curve,curve,"") for curve in data_from.curves]
+    return enum_obj
+
+def get_bevel_enum(scene, context):
+    return get_enum("bevel")
+def get_taper_enum(scene, context):
+    return get_enum("taper")
 
 class ICYP_OT_curve_array_setup(bpy.types.Operator):
     bl_idname = "object.icyp_curve_setup"
@@ -23,12 +34,23 @@ class ICYP_OT_curve_array_setup(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     
     add_array : bpy.props.BoolProperty(default = True)
-
+    taper_type : bpy.props.EnumProperty(name = "Taper type",description ="Taper type",items = get_taper_enum)
+    bevel_type : bpy.props.EnumProperty(name = "Bevel type",description ="Bevel type",items = get_bevel_enum)
     def curve_import(self):
-        filedir = os.path.join(os.path.dirname(__file__),"resources","curves.blend")
+        taper,bevel = None,None
+        filedir = os.path.join(os.path.dirname(__file__),"resources","bevels.blend")
         with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
-            data_to.curves = data_from.curves
-            return data_to.curves    
+            for curve_name in data_from.curves:
+                if curve_name == self.bevel_type:
+                    data_to.curves = [curve_name]
+        bevel = data_to.curves[0]
+        filedir = os.path.join(os.path.dirname(__file__),"resources","tapers.blend")
+        with bpy.data.libraries.load(filedir, link=False) as (data_from, data_to):
+            for curve_name in data_from.curves:
+                if curve_name == self.taper_type:
+                    data_to.curves = [curve_name]
+        taper = data_to.curves[0]
+        return taper,bevel
     def execute(self,context):   
         target_obj = context.active_object
         if self.add_array:
@@ -76,14 +98,10 @@ class ICYP_OT_curve_array_setup(bpy.types.Operator):
             c.show_name = True
             c.data.dimensions = "2D"            
 
-        curves = self.curve_import()
-        for curve in curves:
-            parent_object = origin_empty if self.add_array else target_obj 
-            if re.match("bevel",curve.name):
-                curve_setup(False,curve,0.45,parent_object)
-            elif re.match("taper",curve.name):
-                curve_setup(True,curve,0.6,parent_object)
-                t = bpy.data.objects.new("taper",curve)
+        taper,bevel = self.curve_import()
+        parent_object = origin_empty if self.add_array else target_obj 
+        curve_setup(False,bevel,0.45,parent_object)
+        curve_setup(True,taper,0.6,parent_object)
         return {'FINISHED'}
     
 # アドオン有効化時の処理
